@@ -1,0 +1,13 @@
+# The trained model cache is intentionally NOT committed — see run_once.py's
+# docstring ("MODEL RETRAINING NOTE") for why. This keeps the repo free of
+# repeated binary diffs from a .pkl file that would otherwise bloat history.
+shadow_model.pkl
+
+# PID file only meaningful for the old always-running-process mode; unused
+# under the GitHub Actions single-shot architecture, but ignored just in case.
+shadow.pid
+
+# Standard Python artifacts
+__pycache__/
+*.pyc
+.env
