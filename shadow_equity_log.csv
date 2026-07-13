@@ -1,0 +1,2 @@
+datetime_utc,event,btc_price,net_pnl,wallet,hodl_value,bot_pct,hodl_pct,drawdown_pct,exit_reason
+2026-07-13 09:27:27,trade_closed,63119.0,-7.3939,993.0561,989.6362,-0.694,-1.036,-0.694,stop_loss

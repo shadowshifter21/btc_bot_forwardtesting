@@ -1,0 +1,2 @@
+datetime_utc,candle_close_utc,current_price,candle_low,entry_price,current_return_pct,intraday_low_ret_pct,target_return_pct,sl_pct,sl_price,tp_price,days_held,horizon_days,exit_triggered
+2026-07-13 09:27:27,2026-07-13 09:26:00,63119.0,63119.0,63780.0,-1.0364,-1.0364,2.4501,-0.65,63365.43,65342.67,0.0,7,stop_loss
