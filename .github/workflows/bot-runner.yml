@@ -1,14 +1,24 @@
 name: BTC Forward-Test Bot
 
 # ── Scheduling ────────────────────────────────────────────────────────────
-# GitHub Actions cron uses UTC and does NOT guarantee exact-minute precision
-# — runs can be delayed under high platform load. This is fine for a paper-
-# trading bot; run_once.py's daily-check gate is written to tolerate delays
-# (see its docstring). Cron minimum practical granularity is ~5 minutes.
+# GitHub's native `schedule:` trigger is documented as best-effort and, in
+# practice, high-frequency schedules (every 5-10 min) are frequently DELAYED
+# BY HOURS or dropped entirely on free/personal-tier repos — this is a real,
+# widely-reported GitHub Actions limitation, not a bug in this workflow.
+#
+# The RELIABLE trigger for this bot is now an EXTERNAL cron service
+# (cron-job.org — free, no card, supports down to 1-minute intervals) that
+# calls GitHub's REST API to fire `workflow_dispatch` on a real schedule.
+# See the repo README / setup instructions for how to configure this.
+#
+# GitHub's own `schedule:` below is kept ONLY as a coarse safety net in case
+# the external trigger service is ever down or misconfigured — it is not
+# the primary mechanism and its timing should not be relied upon.
 on:
   schedule:
-    - cron: "*/5 * * * *"    # every 5 minutes. Change to "*/10 * * * *" for 10-min.
-  workflow_dispatch: {}       # lets you manually trigger a run from the Actions tab
+    - cron: "0 * * * *"      # hourly backup net only — NOT the primary trigger
+  workflow_dispatch: {}       # the real trigger: called by cron-job.org, or manually
+                               # from the Actions tab
 
 # ── Prevent overlapping runs ─────────────────────────────────────────────
 # If one run ever takes longer than the schedule interval (e.g. a daily
