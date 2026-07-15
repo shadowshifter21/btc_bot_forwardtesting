@@ -4,3 +4,4 @@ yfinance
 ccxt
 xgboost
 scikit-learn
+requests
