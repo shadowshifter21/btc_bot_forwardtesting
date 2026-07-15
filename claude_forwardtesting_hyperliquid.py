@@ -621,6 +621,13 @@ def _run_daily_entry(today_str: str):
             log.info(f"[DAILY] Already in position. Skipping entry check.")
 
         state["daily_loop_last_run"] = today_str
+        # Persisted regardless of entry decision, purely so an external
+        # notifier (e.g. run_once.py's Telegram integration) can report
+        # what the model saw today even on a "no signal" day.
+        state["last_daily_check_date"]  = today_str
+        state["last_daily_price"]       = current_price
+        state["last_daily_prediction"]  = prediction
+        state["last_daily_threshold"]   = threshold
         save_state(state)
 
 
