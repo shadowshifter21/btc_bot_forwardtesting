@@ -12,8 +12,8 @@
   "last_ath": 1000.0,
   "prediction_history": [],
   "model_trained_date": null,
-  "daily_loop_last_run": "2026-07-19",
-  "last_daily_check_date": "2026-07-19",
+  "daily_loop_last_run": "2026-07-20",
+  "last_daily_check_date": "2026-07-20",
   "last_daily_price": 64827.0,
   "last_daily_prediction": 0.004837441844193492,
   "last_daily_threshold": 0.013
