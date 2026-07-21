@@ -36,9 +36,18 @@ After the daily check runs (once/day), a message is sent reporting one of:
   - the bot was already holding a position (so you know the check ran)
 After any monitor tick that closes a trade, a separate message reports the
 exit reason, entry/exit price, P&L, and updated wallet balance.
+
+You can also message the bot "/status" (or plain "status") at any time to
+get an on-demand reply with the current open position (if any, including
+unrealized P&L) and overall performance (wallet, win rate, trade counts).
+This uses Telegram's getUpdates POLLING api rather than a webhook, since a
+webhook needs a persistent server — incompatible with GitHub Actions'
+ephemeral runs. Each 5-minute run does one quick, non-blocking check for
+new messages, so expect up to ~5 minutes' delay before a reply arrives.
+
 See telegram_notify.py's docstring for one-time setup (BotFather + chat ID
-+ GitHub repo secrets). If unconfigured, notifications silently no-op —
-the bot's trading logic is completely unaffected either way.
++ GitHub repo secrets). If unconfigured, notifications and commands both
+silently no-op — the bot's trading logic is completely unaffected either way.
 
 SCHEDULING NOTE
 ---------------
@@ -67,6 +76,8 @@ always fresh.
 import sys
 import json
 from datetime import datetime, timezone
+
+import pandas as pd
 
 import claude_forwardtesting_hyperliquid as bot
 import telegram_notify as tg
@@ -191,6 +202,82 @@ def run_monitor_check():
             )
 
 
+def check_telegram_commands():
+    """
+    Poll for any new Telegram messages sent since the last processed
+    update, and respond to recognized commands. Currently supports:
+      /status (or plain "status", case-insensitive) — replies with both
+      the ongoing position (if any) and the overall bot performance.
+
+    Uses Telegram's getUpdates polling API rather than a webhook, since a
+    webhook would require a persistent HTTP server — incompatible with
+    GitHub Actions' ephemeral, scheduled-run model. Each run does one
+    quick, non-blocking poll for anything new; state["telegram_last_update_id"]
+    tracks what's already been processed so nothing is answered twice.
+    """
+    state = bot.load_state()
+    last_update_id = state.get("telegram_last_update_id")
+
+    offset = (last_update_id + 1) if last_update_id is not None else None
+    updates = tg.get_new_updates(offset=offset)
+    if not updates:
+        return
+
+    commands = tg.extract_commands(updates)
+
+    # Advance past every update we saw, even non-command messages, so
+    # nothing gets re-delivered and re-processed on the next poll.
+    max_update_id = max(u["update_id"] for u in updates)
+
+    for cmd in commands:
+        text = cmd["text"].lower().lstrip("/").split("@")[0]  # strip leading "/" and "@BotName" suffix
+        if text.startswith("status"):
+            bot.log.info(f"[TELEGRAM] Handling /status command")
+            _send_status_reply()
+
+    state["telegram_last_update_id"] = max_update_id
+    bot.save_state(state)
+
+
+def _send_status_reply():
+    """Gather current position + overall performance and send as one message."""
+    state = bot.load_state()
+
+    # Current price for unrealized P&L: use the most recent monitor-log row
+    # if available (at most ~5 min stale, matching the bot's own polling
+    # cadence) rather than making an extra live price fetch just for this.
+    current_price = None
+    monitor_fp = bot._path(bot.CONFIG["monitor_log_file"])
+    try:
+        mon = pd.read_csv(monitor_fp)
+        if len(mon) > 0:
+            current_price = float(mon["current_price"].iloc[-1])
+    except Exception:
+        pass   # best-effort only — format_status_position handles None gracefully
+
+    position_msg = tg.format_status_position(state, current_price)
+
+    trades_fp = bot._path(bot.CONFIG["trade_log_file"])
+    try:
+        with open(trades_fp) as f:
+            trades = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        trades = []
+
+    equity_fp = bot._path(bot.CONFIG["equity_log_file"])
+    equity_rows = None
+    try:
+        equity_rows = pd.read_csv(equity_fp)
+    except Exception:
+        pass   # best-effort only — format_status_overall handles None gracefully
+
+    overall_msg = tg.format_status_overall(
+        trades, equity_rows, bot.CONFIG["initial_capital"]
+    )
+
+    tg.send_telegram_message(f"{position_msg}\n\n{overall_msg}")
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "report":
         bot.print_report()
@@ -202,6 +289,7 @@ if __name__ == "__main__":
 
     maybe_run_daily_entry()
     run_monitor_check()
+    check_telegram_commands()
 
     bot.log.info("Single-shot run complete.")
 
