@@ -16,5 +16,6 @@
   "last_daily_check_date": "2026-07-21",
   "last_daily_price": 65226.0,
   "last_daily_prediction": 0.005226074955316054,
-  "last_daily_threshold": 0.013
+  "last_daily_threshold": 0.013,
+  "telegram_last_update_id": 615890860
 }
