@@ -122,6 +122,8 @@ CONFIG = {
     # Strategy
     "horizon_days":      7,               # max hold in calendar days
     "quantile_entry":    0.60,            # top 40% predictions trigger entry
+    "max_sl_pct":        0.015,           # stop-loss never exceeds 1.5%, even
+                                           # if half the take-profit would be wider
 
     # Portfolio (paper money)
     "initial_capital":   1_000.0,
@@ -482,6 +484,9 @@ def load_or_train_model(ctx_df, state) -> object:
 
 
 def compute_threshold(state, new_pred):
+    """Rolling quantile entry threshold only. Stop-loss sizing is computed
+    separately at entry time (see _run_daily_entry) since it should scale
+    with each trade's own take-profit target, not with this threshold."""
     history = state.get("prediction_history", [])
     history.append(float(new_pred))
     history = history[-90:]
@@ -491,8 +496,7 @@ def compute_threshold(state, new_pred):
         log.warning(f"Prediction history only {len(history)} rows — using fallback threshold.")
     else:
         threshold = float(np.quantile(history, CONFIG["quantile_entry"]))
-    sl_magnitude = abs(threshold) / 2
-    return threshold, sl_magnitude
+    return threshold
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -554,7 +558,7 @@ def _run_daily_entry(today_str: str):
     model      = load_or_train_model(ctx_df, state)
     pred_norm  = float(model.predict(feat_df[FEATURE_COLS].iloc[[-1]])[0])
     prediction = pred_norm * rolling_vol
-    threshold, sl_magnitude = compute_threshold(state, prediction)
+    threshold = compute_threshold(state, prediction)
 
     log.info(f"[DAILY] {latest_date.date()}  BTC=${current_price:,.0f}  "
              f"pred={prediction:.4f}  threshold={threshold:.4f}")
@@ -565,6 +569,11 @@ def _run_daily_entry(today_str: str):
         # ── only enter if no open position ─────────────────────────────────
         if not state["in_position"]:
             if prediction > threshold:
+                # Stop-loss = half the take-profit target, capped at max_sl_pct.
+                # e.g. TP=2.6% -> SL=1.3% (half, under the cap)
+                #      TP=4.0% -> SL=1.5% (half would be 2.0%, capped down)
+                sl_magnitude  = min(prediction / 2, CONFIG["max_sl_pct"])
+
                 wallet        = state["wallet"]
                 position_usdc = wallet * CONFIG["position_size_pct"] / 100
                 amount        = position_usdc * CONFIG["leverage"]
