@@ -286,5 +286,21 @@
     "fee_exit": 0.46,
     "net_pnl": 37.7421,
     "wallet": 1022.2605
+  },
+  {
+    "event": "long_entry",
+    "datetime_utc": "2026-08-20T00:06:08.346129+00:00",
+    "entry_date": "2026-08-19",
+    "price": 69323.0,
+    "prediction": 0.074651,
+    "threshold": 0.013,
+    "sl_magnitude": 0.015,
+    "sl_price": 68283.15,
+    "tp_price": 74498.05,
+    "horizon_exit_date": "2026-08-27",
+    "position_usdc": 1022.2605,
+    "quantity_btc": 0.0147397,
+    "fee_entry": 0.46,
+    "wallet_after": 0.0
   }
 ]
