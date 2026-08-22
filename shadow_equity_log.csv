@@ -9,3 +9,4 @@ datetime_utc,event,btc_price,net_pnl,wallet,hodl_value,bot_pct,hodl_pct,drawdown
 2026-08-13 16:41:20,trade_closed,62980.0,-15.8784,984.0756,984.8011,-1.592,-1.52,-2.822,stop_loss
 2026-08-19 15:01:25,trade_closed,65974.0,37.7421,1022.2605,1039.288,2.226,3.929,0.0,target_reached
 2026-08-21 01:26:07,trade_closed,74529.0,75.7805,1098.5011,1075.0977,9.85,7.51,0.0,target_reached
+2026-08-22 05:11:07,trade_closed,76741.0,-17.4511,1081.5443,979.0516,8.154,-2.095,-1.544,stop_loss
