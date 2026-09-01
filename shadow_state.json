@@ -12,10 +12,10 @@
   "last_ath": 1115.5438052012187,
   "prediction_history": [],
   "model_trained_date": null,
-  "daily_loop_last_run": "2026-08-31",
-  "last_daily_check_date": "2026-08-31",
-  "last_daily_price": 78228.0,
-  "last_daily_prediction": 0.01781680338185716,
+  "daily_loop_last_run": "2026-09-01",
+  "last_daily_check_date": "2026-09-01",
+  "last_daily_price": 78574.0,
+  "last_daily_prediction": 0.02135645611947507,
   "last_daily_threshold": 0.013,
   "telegram_last_update_id": 615890877
 }
