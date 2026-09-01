@@ -494,5 +494,21 @@
     "quantity_btc": 0.01432626,
     "fee_entry": 0.502,
     "wallet_after": 0.0
+  },
+  {
+    "event": "long_exit",
+    "datetime_utc": "2026-09-01T18:41:21.112745+00:00",
+    "exit_reason": "stop_loss",
+    "entry_price": 77832.0,
+    "exit_price": 76680.32,
+    "entry_date": "2026-08-28",
+    "entry_datetime": "2026-08-29T00:06:26.712548+00:00",
+    "days_held": 3.774,
+    "current_return_pct": -1.406,
+    "pnl_gross": -16.4992,
+    "fee_entry": 0.502,
+    "fee_exit": 0.4943,
+    "net_pnl": -17.4956,
+    "wallet": 1098.5502
   }
 ]
