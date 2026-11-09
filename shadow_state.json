@@ -8,14 +8,14 @@
   "position_usdc": null,
   "quantity_btc": null,
   "fee_entry": null,
-  "wallet": 1267.0582532696108,
+  "wallet": 1250.7729543507685,
   "last_ath": 1342.8303152620329,
   "prediction_history": [],
   "model_trained_date": null,
-  "daily_loop_last_run": "2026-11-08",
-  "last_daily_check_date": "2026-11-08",
+  "daily_loop_last_run": "2026-11-09",
+  "last_daily_check_date": "2026-11-09",
   "last_daily_price": 75850.0,
-  "last_daily_prediction": 0.024828428586858697,
+  "last_daily_prediction": 0.024828428586858693,
   "last_daily_threshold": 0.013,
   "telegram_last_update_id": 615890881
 }
